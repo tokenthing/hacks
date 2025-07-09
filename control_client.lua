@@ -1,55 +1,59 @@
--- control_client.lua
-
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local player = Players.LocalPlayer
 
--- Generate + store a random ID if not already created
+-- 🔑 Create persistent ID (stored in getgenv)
 getgenv().control_id = getgenv().control_id or HttpService:GenerateGUID(false)
 local ID = getgenv().control_id
 
--- Print ID to console if supported
+-- 🌐 Your local server address
+local SERVER = "http://localhost:3000" -- CHANGE IF NEEDED
+
+-- 🧾 Register with your server
 pcall(function()
-    rconsoleprint("[Control Client] Your ID: " .. ID .. "\n")
+    HttpService:PostAsync(
+        SERVER.."/register",
+        HttpService:JSONEncode({ id = ID }),
+        Enum.HttpContentType.ApplicationJson
+    )
 end)
 
--- Link to your GitHub JSON
-local COMMAND_URL = "https://raw.githubusercontent.com/tokenthing/hacks/main/commands.json"
+-- 🖥️ Print ID to executor console (if supported)
+pcall(function()
+    rconsoleclear()
+    rconsoleprint("@@LIGHT_BLUE@@\n[Remote Client] Your Control ID: @@WHITE@@ " .. ID .. "\n")
+end)
 
-function getHumanoid()
-    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    return char:WaitForChild("Humanoid")
-end
+-- 🎮 Command handler
+local function handleCommand(cmd)
+    local char = player.Character or player.CharacterAdded:Wait()
+    local humanoid = char:WaitForChild("Humanoid")
 
-function handleCommand(command)
-    local humanoid = getHumanoid()
-    if command == "jump" then
+    if cmd == "jump" then
         humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-    elseif command:match("^speed ") then
-        local speed = tonumber(command:match("^speed (%d+)$"))
+    elseif cmd and cmd:match("^speed ") then
+        local speed = tonumber(cmd:match("^speed (%d+)"))
         if speed then humanoid.WalkSpeed = speed end
-    elseif command == "spin" then
-        local char = LocalPlayer.Character
-        if char and char:FindFirstChild("HumanoidRootPart") then
+    elseif cmd == "spin" then
+        task.spawn(function()
+            local root = char:FindFirstChild("HumanoidRootPart")
             while true do
-                char.HumanoidRootPart.CFrame *= CFrame.Angles(0, math.rad(5), 0)
+                if not root then break end
+                root.CFrame *= CFrame.Angles(0, math.rad(5), 0)
                 task.wait(0.01)
             end
-        end
+        end)
     end
 end
 
--- Command check loop
+-- 🔁 Poll server every 5 seconds
 while true do
-    local success, result = pcall(function()
-        return HttpService:JSONDecode(game:HttpGet(COMMAND_URL))
+    local success, data = pcall(function()
+        return HttpService:JSONDecode(game:HttpGet(SERVER.."/command/"..ID))
     end)
 
-    if success and result and result.players and result.players[ID] then
-        local cmd = result.players[ID].command
-        if cmd then
-            handleCommand(cmd)
-        end
+    if success and data and data.command then
+        handleCommand(data.command)
     end
 
     task.wait(5)
