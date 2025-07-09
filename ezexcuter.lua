@@ -1,149 +1,78 @@
--- Put this in a LocalScript inside StarterPlayerScripts
-
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
 
--- Create ScreenGui
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "RemoteExecutorUI"
-screenGui.Parent = playerGui
+-- Setup ScreenGui
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "MiniExecutor"
 screenGui.ResetOnSpawn = false
 
--- Create main frame
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 350, 0, 150)
-mainFrame.Position = UDim2.new(0.5, -175, 0.5, -75)
-mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-mainFrame.BorderSizePixel = 0
-mainFrame.Active = true
-mainFrame.Draggable = true
-mainFrame.Parent = screenGui
+-- Main Frame (Executor Window)
+local executorFrame = Instance.new("Frame", screenGui)
+executorFrame.Name = "ExecutorFrame"
+executorFrame.Size = UDim2.new(0, 400, 0, 300)
+executorFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+executorFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+executorFrame.BorderSizePixel = 0
+executorFrame.Active = true
+executorFrame.Draggable = true
 
--- Title bar (for dragging)
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 25)
-titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-titleBar.Parent = mainFrame
-
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "Remote Executor"
-titleLabel.Size = UDim2.new(1, -50, 1, 0)
-titleLabel.BackgroundTransparency = 1
-titleLabel.TextColor3 = Color3.new(1,1,1)
+-- Title
+local titleLabel = Instance.new("TextLabel", executorFrame)
+titleLabel.Size = UDim2.new(1, 0, 0, 30)
+titleLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+titleLabel.Text = "Mini Executor"
+titleLabel.TextColor3 = Color3.new(1, 1, 1)
 titleLabel.Font = Enum.Font.SourceSansBold
-titleLabel.TextSize = 18
-titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-titleLabel.Position = UDim2.new(0, 10, 0, 0)
-titleLabel.Parent = titleBar
+titleLabel.TextSize = 20
 
--- Close button
-local closeButton = Instance.new("TextButton")
-closeButton.Text = "✕"
-closeButton.Size = UDim2.new(0, 30, 1, 0)
-closeButton.Position = UDim2.new(1, -30, 0, 0)
-closeButton.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-closeButton.TextColor3 = Color3.new(1,1,1)
-closeButton.Font = Enum.Font.SourceSansBold
-closeButton.TextSize = 18
-closeButton.Parent = titleBar
+-- Script Input Box
+local scriptBox = Instance.new("TextBox", executorFrame)
+scriptBox.Position = UDim2.new(0, 10, 0, 40)
+scriptBox.Size = UDim2.new(1, -20, 1, -90)
+scriptBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+scriptBox.TextColor3 = Color3.new(1, 1, 1)
+scriptBox.Font = Enum.Font.Code
+scriptBox.TextSize = 16
+scriptBox.ClearTextOnFocus = false
+scriptBox.MultiLine = true
+scriptBox.TextYAlignment = Enum.TextYAlignment.Top
+scriptBox.TextWrapped = true
+scriptBox.PlaceholderText = "-- Write your Lua script here"
 
-closeButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
+-- Execute Button
+local executeButton = Instance.new("TextButton", executorFrame)
+executeButton.Size = UDim2.new(0, 120, 0, 30)
+executeButton.Position = UDim2.new(0, 10, 1, -40)
+executeButton.Text = "Execute"
+executeButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+executeButton.TextColor3 = Color3.new(1, 1, 1)
+executeButton.Font = Enum.Font.SourceSansBold
+executeButton.TextSize = 18
+
+-- Clear Button
+local clearButton = Instance.new("TextButton", executorFrame)
+clearButton.Size = UDim2.new(0, 120, 0, 30)
+clearButton.Position = UDim2.new(0, 140, 1, -40)
+clearButton.Text = "Clear"
+clearButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+clearButton.TextColor3 = Color3.new(1, 1, 1)
+clearButton.Font = Enum.Font.SourceSansBold
+clearButton.TextSize = 18
+
+-- Execute logic
+executeButton.MouseButton1Click:Connect(function()
+	local code = scriptBox.Text
+	if code and code ~= "" then
+		local func, err = loadstring(code)
+		if func then
+			pcall(func)
+		else
+			warn("Script error: ", err)
+		end
+	end
 end)
 
--- Input textbox for remote/script name
-local inputBox = Instance.new("TextBox")
-inputBox.PlaceholderText = "Enter RemoteEvent/Function/Script name"
-inputBox.Size = UDim2.new(1, -20, 0, 35)
-inputBox.Position = UDim2.new(0, 10, 0, 45)
-inputBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-inputBox.TextColor3 = Color3.new(1,1,1)
-inputBox.ClearTextOnFocus = false
-inputBox.Font = Enum.Font.SourceSans
-inputBox.TextSize = 18
-inputBox.Parent = mainFrame
-
--- Execute button
-local execButton = Instance.new("TextButton")
-execButton.Text = "Execute"
-execButton.Size = UDim2.new(1, -20, 0, 35)
-execButton.Position = UDim2.new(0, 10, 0, 90)
-execButton.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
-execButton.TextColor3 = Color3.new(1,1,1)
-execButton.Font = Enum.Font.SourceSansBold
-execButton.TextSize = 20
-execButton.Parent = mainFrame
-
--- Output label
-local outputLabel = Instance.new("TextLabel")
-outputLabel.Size = UDim2.new(1, -20, 0, 20)
-outputLabel.Position = UDim2.new(0, 10, 0, 135)
-outputLabel.BackgroundTransparency = 1
-outputLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-outputLabel.Font = Enum.Font.SourceSansItalic
-outputLabel.TextSize = 14
-outputLabel.Text = ""
-outputLabel.Parent = mainFrame
-
-local function findInstanceByName(name)
-    -- Search entire game for instance with exact name
-    local results = {}
-
-    local function search(parent)
-        for _, child in ipairs(parent:GetChildren()) do
-            if child.Name == name then
-                table.insert(results, child)
-            end
-            search(child)
-        end
-    end
-
-    search(game)
-    return results
-end
-
-execButton.MouseButton1Click:Connect(function()
-    outputLabel.Text = ""
-    local name = inputBox.Text
-    if name == "" then
-        outputLabel.Text = "Please enter a name."
-        return
-    end
-
-    local foundInstances = findInstanceByName(name)
-    if #foundInstances == 0 then
-        outputLabel.Text = "No instance found with that name."
-        return
-    end
-
-    for _, inst in ipairs(foundInstances) do
-        if inst:IsA("RemoteEvent") then
-            inst:FireServer()
-            outputLabel.Text = "Fired RemoteEvent: " .. inst:GetFullName()
-        elseif inst:IsA("RemoteFunction") then
-            local success, result = pcall(function()
-                return inst:InvokeServer()
-            end)
-            if success then
-                outputLabel.Text = "Invoked RemoteFunction: " .. inst:GetFullName() .. "\nResult: " .. tostring(result)
-            else
-                outputLabel.Text = "Invoke failed: " .. tostring(result)
-            end
-        elseif inst:IsA("ModuleScript") then
-            local success, module = pcall(require, inst)
-            if success then
-                outputLabel.Text = "Required ModuleScript: " .. inst:GetFullName()
-            else
-                outputLabel.Text = "Require failed: " .. tostring(module)
-            end
-        elseif inst:IsA("Script") or inst:IsA("LocalScript") then
-            -- You can't "run" Scripts from client - just notify
-            outputLabel.Text = "Found Script: " .. inst:GetFullName() .. " (cannot execute)"
-        else
-            outputLabel.Text = "Found instance: " .. inst:GetFullName() .. " (not executable)"
-        end
-        -- For simplicity, only act on the first found instance:
-        break
-    end
+-- Clear logic
+clearButton.MouseButton1Click:Connect(function()
+	scriptBox.Text = ""
 end)
