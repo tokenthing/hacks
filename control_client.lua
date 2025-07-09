@@ -4,14 +4,22 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local function getHumanoid()
+-- Generate + store a random ID if not already created
+getgenv().control_id = getgenv().control_id or HttpService:GenerateGUID(false)
+local ID = getgenv().control_id
+
+-- Print ID to console if supported
+pcall(function()
+    rconsoleprint("[Control Client] Your ID: " .. ID .. "\n")
+end)
+
+-- Link to your GitHub JSON
+local COMMAND_URL = "https://raw.githubusercontent.com/tokenthing/hacks/main/commands.json"
+
+function getHumanoid()
     local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     return char:WaitForChild("Humanoid")
 end
-
--- SET THIS TO THE ID YOU WANT TO IDENTIFY THIS PLAYER AS
-local ID = "myTestID" -- change this manually or generate it
-local COMMAND_URL = "https://raw.githubusercontent.com/tokenthing/hacks/main/commands.json"
 
 function handleCommand(command)
     local humanoid = getHumanoid()
@@ -31,7 +39,7 @@ function handleCommand(command)
     end
 end
 
--- Command poll loop
+-- Command check loop
 while true do
     local success, result = pcall(function()
         return HttpService:JSONDecode(game:HttpGet(COMMAND_URL))
