@@ -1,0 +1,10 @@
+{
+  "players": {
+    "myTestID": {
+      "command": "jump"
+    },
+    "otherID": {
+      "command": "speed 100"
+    }
+  }
+}
