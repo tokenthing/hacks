@@ -1,10 +1,5 @@
 {
-  "players": {
-    "myTestID": {
-      "command": "jump"
-    },
-    "otherID": {
-      "command": "speed 100"
-    }
-  }
+  "spinjump": "spin; wait 1; jump",
+  "superboost": "speed 100; jump; spin",
+  "slowreset": "speed 10; sit; wait 3; stand; speed 16"
 }
