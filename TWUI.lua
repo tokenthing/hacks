@@ -1,3 +1,5 @@
+local TweenService = game:GetService("TweenService")
+
 function TWUI:CreateWindow(config)
     local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
@@ -60,14 +62,31 @@ function TWUI:CreateWindow(config)
     iconButton.TextColor3 = Color3.new(1, 1, 1)
     iconButton.Parent = iconFrame
 
+    -- Tweened Minimize
     minimizeButton.MouseButton1Click:Connect(function()
-        mainFrame.Visible = false
-        iconFrame.Visible = true
+        local tweenOut = TweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0.5, -200, 1.2, 0),
+            BackgroundTransparency = 1
+        })
+        tweenOut:Play()
+        tweenOut.Completed:Connect(function()
+            mainFrame.Visible = false
+            iconFrame.Visible = true
+            iconFrame.BackgroundTransparency = 1
+            TweenService:Create(iconFrame, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+        end)
     end)
 
+    -- Tweened Restore
     iconButton.MouseButton1Click:Connect(function()
-        mainFrame.Visible = true
         iconFrame.Visible = false
+        mainFrame.Position = UDim2.new(0.5, -200, 1.2, 0)
+        mainFrame.BackgroundTransparency = 1
+        mainFrame.Visible = true
+        TweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0.5, -200, 0.5, -150),
+            BackgroundTransparency = 0
+        }):Play()
     end)
 
     local self = {}
