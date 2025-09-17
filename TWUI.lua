@@ -12,7 +12,7 @@ end
 local function addShadow(instance)
     local shadow = Instance.new("ImageLabel")
     shadow.Name = "Shadow"
-    shadow.Image = "rbxassetid://1316045217" -- Roblox built-in shadow asset
+    shadow.Image = "rbxassetid://1316045217"
     shadow.Size = UDim2.new(1, 20, 1, 20)
     shadow.Position = UDim2.new(0, -10, 0, -10)
     shadow.BackgroundTransparency = 1
@@ -46,15 +46,91 @@ function TWUI:CreateWindow(config)
     addCorner(mainFrame, 18)
     addShadow(mainFrame)
 
-    -- Gradient
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0.0, Color3.fromRGB(40, 140, 230)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(34, 40, 49)),
-        ColorSequenceKeypoint.new(1.0, Color3.fromRGB(34, 49, 49))
+    -- Sidebar (Script Suggestion)
+    local sidebarWidth = 170
+    local sidebarFrame = Instance.new("Frame")
+    sidebarFrame.Size = UDim2.new(0, sidebarWidth, 1, 0)
+    sidebarFrame.Position = UDim2.new(0, -sidebarWidth, 0, 0)
+    sidebarFrame.BackgroundColor3 = Color3.fromRGB(38, 44, 51)
+    sidebarFrame.BorderSizePixel = 0
+    sidebarFrame.ZIndex = 20
+    sidebarFrame.Parent = mainFrame
+    addCorner(sidebarFrame, 16)
+    addShadow(sidebarFrame)
+
+    local sidebarLabel = Instance.new("TextLabel")
+    sidebarLabel.Size = UDim2.new(1, 0, 0, 40)
+    sidebarLabel.Position = UDim2.new(0, 0, 0, 0)
+    sidebarLabel.BackgroundTransparency = 1
+    sidebarLabel.Text = "Script Suggestions"
+    sidebarLabel.TextColor3 = Color3.fromRGB(220,220,220)
+    sidebarLabel.Font = Enum.Font.GothamBold
+    sidebarLabel.TextSize = 18
+    sidebarLabel.ZIndex = 21
+    sidebarLabel.Parent = sidebarFrame
+
+    -- Suggestions List
+    local scripts = {
+        {Name = "Infinite Yield", Url = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"},
+        {Name = "CMD-X", Url = "https://raw.githubusercontent.com/CMD-X/CMD-X/master/CMD-X.lua"},
+        {Name = "Dark Dex", Url = "https://raw.githubusercontent.com/peytonicmaster/Dex/master/out.lua"},
+        {Name = "Simple Spy", Url = "https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"}
     }
-    gradient.Rotation = 45
-    gradient.Parent = mainFrame
+
+    local scriptY = 50
+    for i, v in ipairs(scripts) do
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(1, -20, 0, 32)
+        btn.Position = UDim2.new(0, 10, 0, scriptY)
+        btn.BackgroundColor3 = Color3.fromRGB(50, 120, 200)
+        btn.Text = v.Name
+        btn.TextColor3 = Color3.fromRGB(255,255,255)
+        btn.Font = Enum.Font.Gotham
+        btn.TextSize = 15
+        btn.ZIndex = 22
+        btn.Parent = sidebarFrame
+        addCorner(btn, 10)
+        addShadow(btn)
+
+        btn.MouseButton1Click:Connect(function()
+            -- RUN the script!
+            local success, err = pcall(function()
+                loadstring(game:HttpGet(v.Url))()
+            end)
+            if not success then
+                warn("Script failed: "..err)
+            end
+        end)
+
+        scriptY = scriptY + 38
+    end
+
+    -- Sidebar Toggle Button (Arrow)
+    local sidebarToggle = Instance.new("TextButton")
+    sidebarToggle.Size = UDim2.new(0, 28, 0, 60)
+    sidebarToggle.Position = UDim2.new(0, -28, 0.5, -30)
+    sidebarToggle.BackgroundColor3 = Color3.fromRGB(60, 120, 200)
+    sidebarToggle.Text = "→"
+    sidebarToggle.TextColor3 = Color3.new(1,1,1)
+    sidebarToggle.Font = Enum.Font.GothamBlack
+    sidebarToggle.TextSize = 22
+    sidebarToggle.ZIndex = 30
+    sidebarToggle.Parent = mainFrame
+    addCorner(sidebarToggle, 12)
+    addShadow(sidebarToggle)
+
+    local sidebarOpen = false
+    sidebarToggle.MouseButton1Click:Connect(function()
+        sidebarOpen = not sidebarOpen
+        local tween = TweenService:Create(sidebarFrame, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+            Position = sidebarOpen and UDim2.new(0, 0, 0, 0) or UDim2.new(0, -sidebarWidth, 0, 0)
+        })
+        tween:Play()
+        sidebarToggle.Text = sidebarOpen and "←" or "→"
+    end)
+
+    -- Main UI (rest unchanged) ...
+    -- Title bar, tabs, etc. as in previous versions
 
     -- Title Bar
     local titleBar = Instance.new("Frame")
@@ -89,7 +165,6 @@ function TWUI:CreateWindow(config)
     closeButton.Parent = titleBar
     addCorner(closeButton, 12)
     addShadow(closeButton)
-
     closeButton.MouseButton1Click:Connect(function()
         screenGui:Destroy()
     end)
@@ -131,7 +206,6 @@ function TWUI:CreateWindow(config)
     iconButton.ZIndex = 11
     iconButton.Parent = iconFrame
 
-    -- Tweened Minimize
     minimizeButton.MouseButton1Click:Connect(function()
         local tweenOut = TweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
             Position = UDim2.new(0.5, -210, 1.2, 0),
@@ -146,7 +220,6 @@ function TWUI:CreateWindow(config)
         end)
     end)
 
-    -- Tweened Restore
     iconButton.MouseButton1Click:Connect(function()
         iconFrame.Visible = false
         mainFrame.Position = UDim2.new(0.5, -210, 1.2, 0)
@@ -198,7 +271,7 @@ function TWUI:CreateWindow(config)
 
         button.MouseButton1Click:Connect(function()
             if config.Callback then
-                config.Callback()
+                config.Callback(button)
             end
         end)
         return button
