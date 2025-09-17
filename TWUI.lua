@@ -1,5 +1,6 @@
 local TWUI = {}
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 
 function TWUI:CreateWindow(config)
     local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -94,7 +95,7 @@ function TWUI:CreateWindow(config)
     self.MainFrame = mainFrame
     self.Tabs = {}
 
-    function self:CreateTab(name, iconId)
+    function self:CreateTab(name)
         local tabFrame = Instance.new("Frame")
         tabFrame.Size = UDim2.new(1, 0, 1, 0)
         tabFrame.BackgroundTransparency = 1
@@ -123,59 +124,51 @@ function TWUI:CreateWindow(config)
         end)
     end
 
-    return self
     function self:CreateSlider(tab, config)
-    local sliderFrame = Instance.new("Frame")
-    sliderFrame.Size = UDim2.new(0, 200, 0, 40)
-    sliderFrame.Position = UDim2.new(0, 10, 0, 10 + (#tab:GetChildren() * 45))
-    sliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    sliderFrame.Parent = tab
+        local sliderFrame = Instance.new("Frame")
+        sliderFrame.Size = UDim2.new(0, 200, 0, 40)
+        sliderFrame.Position = UDim2.new(0, 10, 0, 10 + (#tab:GetChildren() * 45))
+        sliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        sliderFrame.Parent = tab
 
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 0.5, 0)
-    label.Text = config.Name .. ": " .. config.CurrentValue
-    label.TextColor3 = Color3.new(1, 1, 1)
-    label.BackgroundTransparency = 1
-    label.Font = Enum.Font.SourceSans
-    label.TextSize = 16
-    label.Parent = sliderFrame
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, 0, 0.5, 0)
+        label.Text = config.Name .. ": " .. config.CurrentValue
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.BackgroundTransparency = 1
+        label.Font = Enum.Font.SourceSans
+        label.TextSize = 16
+        label.Parent = sliderFrame
 
-    local slider = Instance.new("TextButton")
-    slider.Size = UDim2.new(1, 0, 0.5, 0)
-    slider.Position = UDim2.new(0, 0, 0.5, 0)
-    slider.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    slider.Text = ""
-    slider.Parent = sliderFrame
+        local slider = Instance.new("TextButton")
+        slider.Size = UDim2.new(1, 0, 0.5, 0)
+        slider.Position = UDim2.new(0, 0, 0.5, 0)
+        slider.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+        slider.Text = ""
+        slider.Parent = sliderFrame
 
-    local dragging = false
+        local dragging = false
 
-    slider.MouseButton1Down:Connect(function()
-        dragging = true
-    end)
+        slider.MouseButton1Down:Connect(function()
+            dragging = true
+        end)
 
-    slider.MouseButton1Up:Connect(function()
-        dragging = false
-    end)
+        slider.MouseButton1Up:Connect(function()
+            dragging = false
+        end)
 
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local relX = math.clamp((input.Position.X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X, 0, 1)
-            local value = math.floor(config.Range[1] + (config.Range[2] - config.Range[1]) * relX)
-            value = math.floor(value / config.Increment) * config.Increment
-            label.Text = config.Name .. ": " .. value
-            if config.Callback then
-                config.Callback(value)
+        UserInputService.InputChanged:Connect(function(input)
+            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                local relX = math.clamp((input.Position.X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X, 0, 1)
+                local value = math.floor(config.Range[1] + (config.Range[2] - config.Range[1]) * relX)
+                value = math.floor(value / config.Increment) * config.Increment
+                label.Text = config.Name .. ": " .. value
+                if config.Callback then
+                    config.Callback(value)
+                end
             end
-        end
-    end)
-end
- local self = {}
-    self.MainFrame = mainFrame
-    self.Tabs = {}
-
-    function self:CreateTab(...) ... end
-    function self:CreateButton(...) ... end
-    function self:CreateSlider(...) ... end
+        end)
+    end
 
     return self
 end
