@@ -124,3 +124,5 @@ function TWUI:CreateWindow(config)
 
     return self
 end
+return TWUI
+
