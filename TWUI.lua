@@ -1,8 +1,10 @@
 function TWUI:CreateWindow(config)
+    local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = config.Name or "TWUI"
     screenGui.ResetOnSpawn = false
-    screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    screenGui.Parent = playerGui
 
     local mainFrame = Instance.new("Frame")
     mainFrame.Size = UDim2.new(0, 400, 0, 300)
@@ -10,7 +12,7 @@ function TWUI:CreateWindow(config)
     mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     mainFrame.BorderSizePixel = 0
     mainFrame.Active = true
-    mainFrame.Draggable = true -- ✅ Makes it draggable
+    mainFrame.Draggable = true
     mainFrame.Parent = screenGui
 
     -- Close Button
@@ -26,6 +28,46 @@ function TWUI:CreateWindow(config)
 
     closeButton.MouseButton1Click:Connect(function()
         screenGui:Destroy()
+    end)
+
+    -- Minimize Button
+    local minimizeButton = Instance.new("TextButton")
+    minimizeButton.Size = UDim2.new(0, 30, 0, 30)
+    minimizeButton.Position = UDim2.new(1, -70, 0, 5)
+    minimizeButton.BackgroundColor3 = Color3.fromRGB(60, 60, 255)
+    minimizeButton.Text = "-"
+    minimizeButton.TextColor3 = Color3.new(1, 1, 1)
+    minimizeButton.Font = Enum.Font.SourceSansBold
+    minimizeButton.TextSize = 18
+    minimizeButton.Parent = mainFrame
+
+    -- Mini Icon Frame
+    local iconFrame = Instance.new("Frame")
+    iconFrame.Size = UDim2.new(0, 50, 0, 50)
+    iconFrame.Position = UDim2.new(0, 20, 0, 20)
+    iconFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    iconFrame.Visible = false
+    iconFrame.Active = true
+    iconFrame.Draggable = true
+    iconFrame.Parent = screenGui
+
+    local iconButton = Instance.new("TextButton")
+    iconButton.Size = UDim2.new(1, 0, 1, 0)
+    iconButton.BackgroundTransparency = 1
+    iconButton.Text = "📂"
+    iconButton.TextSize = 24
+    iconButton.Font = Enum.Font.SourceSansBold
+    iconButton.TextColor3 = Color3.new(1, 1, 1)
+    iconButton.Parent = iconFrame
+
+    minimizeButton.MouseButton1Click:Connect(function()
+        mainFrame.Visible = false
+        iconFrame.Visible = true
+    end)
+
+    iconButton.MouseButton1Click:Connect(function()
+        mainFrame.Visible = true
+        iconFrame.Visible = false
     end)
 
     local self = {}
