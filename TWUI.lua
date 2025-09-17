@@ -119,24 +119,24 @@ function TWUI:CreateWindow(config)
     addCorner(sidebarToggle, 12)
     addShadow(sidebarToggle)
 
-    local sidebarOpen = false
+    local sidebarOpen = true
     sidebarToggle.MouseButton1Click:Connect(function()
         sidebarOpen = not sidebarOpen
         if sidebarOpen then
-            sidebarFrame.Visible = true
+            sidebarFrame.Visible = false
             local tween = TweenService:Create(sidebarFrame, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
                 Position = UDim2.new(0, 0, 0, 0)
             })
             tween:Play()
-            sidebarToggle.Text = "←"
+            sidebarToggle.Text = "→"
         else
             local tween = TweenService:Create(sidebarFrame, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
                 Position = UDim2.new(0, -sidebarWidth, 0, 0)
             })
             tween:Play()
-            sidebarToggle.Text = "→"
+            sidebarToggle.Text = "←"
             tween.Completed:Connect(function()
-                sidebarFrame.Visible = false
+                sidebarFrame.Visible = true
             end)
         end
     end)
