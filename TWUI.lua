@@ -5,9 +5,14 @@ function TWUI:CreateWindow(config)
     -- Create ScreenGui, main frame, title bar, etc.
 end
 
-function TWUI:CreateTab(name, iconId)
-    -- Tab container logic
+function TWUI:CreateWindow(config)
+    local self = {}
+    function self:CreateTab(name, iconId)
+        -- tab creation logic
+    end
+    return self
 end
+
 
 function TWUI:CreateButton(tab, config)
     -- Button creation logic
