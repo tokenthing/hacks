@@ -122,8 +122,8 @@ function TWUI:CreateWindow(config)
     local sidebarOpen = false
     sidebarToggle.MouseButton1Click:Connect(function()
         sidebarOpen = not sidebarOpen
-        sidebarFrame.Visible = sidebarOpen
         if sidebarOpen then
+            sidebarFrame.Visible = true
             local tween = TweenService:Create(sidebarFrame, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
                 Position = UDim2.new(0, 0, 0, 0)
             })
@@ -135,7 +135,6 @@ function TWUI:CreateWindow(config)
             })
             tween:Play()
             sidebarToggle.Text = "→"
-            -- Hide after animation finishes so it doesn't block UI
             tween.Completed:Connect(function()
                 sidebarFrame.Visible = false
             end)
