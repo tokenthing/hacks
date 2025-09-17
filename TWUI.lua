@@ -1,3 +1,4 @@
+local TWUI = {}
 local TweenService = game:GetService("TweenService")
 
 function TWUI:CreateWindow(config)
