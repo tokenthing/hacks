@@ -1,14 +1,12 @@
 local TWUI = {}
 local TweenService = game:GetService("TweenService")
 
--- Helper for rounded corners
 local function addCorner(instance, radius)
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, radius)
     corner.Parent = instance
 end
 
--- Helper for drop shadow
 local function addShadow(instance)
     local shadow = Instance.new("ImageLabel")
     shadow.Name = "Shadow"
@@ -54,6 +52,7 @@ function TWUI:CreateWindow(config)
     sidebarFrame.BackgroundColor3 = Color3.fromRGB(38, 44, 51)
     sidebarFrame.BorderSizePixel = 0
     sidebarFrame.ZIndex = 20
+    sidebarFrame.Visible = false
     sidebarFrame.Parent = mainFrame
     addCorner(sidebarFrame, 16)
     addShadow(sidebarFrame)
@@ -69,12 +68,16 @@ function TWUI:CreateWindow(config)
     sidebarLabel.ZIndex = 21
     sidebarLabel.Parent = sidebarFrame
 
-    -- Suggestions List
+    -- Only suggest scripts that are most reliable
     local scripts = {
-        {Name = "Infinite Yield", Url = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"},
-        {Name = "CMD-X", Url = "https://raw.githubusercontent.com/CMD-X/CMD-X/master/CMD-X.lua"},
-        {Name = "Dark Dex", Url = "https://raw.githubusercontent.com/peytonicmaster/Dex/master/out.lua"},
-        {Name = "Simple Spy", Url = "https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"}
+        {
+            Name = "Infinite Yield",
+            Url = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
+        },
+        {
+            Name = "Simple Spy",
+            Url = "https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"
+        }
     }
 
     local scriptY = 50
@@ -91,9 +94,7 @@ function TWUI:CreateWindow(config)
         btn.Parent = sidebarFrame
         addCorner(btn, 10)
         addShadow(btn)
-
         btn.MouseButton1Click:Connect(function()
-            -- RUN the script!
             local success, err = pcall(function()
                 loadstring(game:HttpGet(v.Url))()
             end)
@@ -101,7 +102,6 @@ function TWUI:CreateWindow(config)
                 warn("Script failed: "..err)
             end
         end)
-
         scriptY = scriptY + 38
     end
 
@@ -122,11 +122,24 @@ function TWUI:CreateWindow(config)
     local sidebarOpen = false
     sidebarToggle.MouseButton1Click:Connect(function()
         sidebarOpen = not sidebarOpen
-        local tween = TweenService:Create(sidebarFrame, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-            Position = sidebarOpen and UDim2.new(0, 0, 0, 0) or UDim2.new(0, -sidebarWidth, 0, 0)
-        })
-        tween:Play()
-        sidebarToggle.Text = sidebarOpen and "←" or "→"
+        sidebarFrame.Visible = sidebarOpen
+        if sidebarOpen then
+            local tween = TweenService:Create(sidebarFrame, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0, 0, 0, 0)
+            })
+            tween:Play()
+            sidebarToggle.Text = "←"
+        else
+            local tween = TweenService:Create(sidebarFrame, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0, -sidebarWidth, 0, 0)
+            })
+            tween:Play()
+            sidebarToggle.Text = "→"
+            -- Hide after animation finishes so it doesn't block UI
+            tween.Completed:Connect(function()
+                sidebarFrame.Visible = false
+            end)
+        end
     end)
 
     -- Main UI (rest unchanged) ...
@@ -205,7 +218,6 @@ function TWUI:CreateWindow(config)
     iconButton.TextColor3 = Color3.new(1, 1, 1)
     iconButton.ZIndex = 11
     iconButton.Parent = iconFrame
-
     minimizeButton.MouseButton1Click:Connect(function()
         local tweenOut = TweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
             Position = UDim2.new(0.5, -210, 1.2, 0),
@@ -219,7 +231,6 @@ function TWUI:CreateWindow(config)
             TweenService:Create(iconFrame, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
         end)
     end)
-
     iconButton.MouseButton1Click:Connect(function()
         iconFrame.Visible = false
         mainFrame.Position = UDim2.new(0.5, -210, 1.2, 0)
@@ -246,7 +257,6 @@ function TWUI:CreateWindow(config)
         tabFrame.Parent = mainFrame
         addCorner(tabFrame, 14)
         addShadow(tabFrame)
-
         self.Tabs[name] = tabFrame
         return tabFrame
     end
@@ -268,7 +278,6 @@ function TWUI:CreateWindow(config)
         button.Parent = tab
         addCorner(button, 10)
         addShadow(button)
-
         button.MouseButton1Click:Connect(function()
             if config.Callback then
                 config.Callback(button)
@@ -290,7 +299,6 @@ function TWUI:CreateWindow(config)
         sliderFrame.Parent = tab
         addCorner(sliderFrame, 10)
         addShadow(sliderFrame)
-
         local label = Instance.new("TextLabel")
         label.Size = UDim2.new(1, 0, 0.5, 0)
         label.Text = (config.Name or "Slider") .. ": " .. tostring(config.CurrentValue or "")
@@ -300,7 +308,6 @@ function TWUI:CreateWindow(config)
         label.TextSize = 17
         label.ZIndex = 8
         label.Parent = sliderFrame
-
         local slider = Instance.new("TextButton")
         slider.Size = UDim2.new(1, 0, 0.5, 0)
         slider.Position = UDim2.new(0, 0, 0.5, 0)
@@ -309,17 +316,13 @@ function TWUI:CreateWindow(config)
         slider.ZIndex = 8
         slider.Parent = sliderFrame
         addCorner(slider, 6)
-
         local dragging = false
-
         slider.MouseButton1Down:Connect(function()
             dragging = true
         end)
-
         slider.MouseButton1Up:Connect(function()
             dragging = false
         end)
-
         game:GetService("UserInputService").InputChanged:Connect(function(input)
             if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
                 local relX = math.clamp((input.Position.X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X, 0, 1)
