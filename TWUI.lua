@@ -1,6 +1,3 @@
--- TWUI.lua
-local TWUI = {}
-
 function TWUI:CreateWindow(config)
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = config.Name or "TWUI"
@@ -12,7 +9,24 @@ function TWUI:CreateWindow(config)
     mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
     mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     mainFrame.BorderSizePixel = 0
+    mainFrame.Active = true
+    mainFrame.Draggable = true -- ✅ Makes it draggable
     mainFrame.Parent = screenGui
+
+    -- Close Button
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0, 30, 0, 30)
+    closeButton.Position = UDim2.new(1, -35, 0, 5)
+    closeButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+    closeButton.Text = "X"
+    closeButton.TextColor3 = Color3.new(1, 1, 1)
+    closeButton.Font = Enum.Font.SourceSansBold
+    closeButton.TextSize = 18
+    closeButton.Parent = mainFrame
+
+    closeButton.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
 
     local self = {}
     self.MainFrame = mainFrame
@@ -49,5 +63,3 @@ function TWUI:CreateWindow(config)
 
     return self
 end
-
-return TWUI
