@@ -169,7 +169,15 @@ function TWUI:CreateWindow(config)
         end
     end)
 end
+ local self = {}
+    self.MainFrame = mainFrame
+    self.Tabs = {}
 
+    function self:CreateTab(...) ... end
+    function self:CreateButton(...) ... end
+    function self:CreateSlider(...) ... end
+
+    return self
 end
-return TWUI
 
+return TWUI
